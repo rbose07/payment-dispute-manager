@@ -8,7 +8,7 @@ The vulnerabilities are intentional training material. Never silently remediate 
 
 ## Technology and structure
 
-- Java 17
+- Java 21
 - Spring Boot 3
 - Gradle with the checked-in wrapper
 - H2 in-memory database

@@ -72,7 +72,7 @@
 
 ### {{FINDING_1_ICON}} {{FINDING_1_ID}} · {{FINDING_1_TITLE}}
 
-**{{FINDING_1_SEVERITY_ICON}} {{FINDING_1_SEVERITY}} severity** · **🔎 {{FINDING_1_CONFIDENCE}} audit confidence** · `{{FINDING_1_CATEGORY}}` · **🏷️ {{FINDING_1_ORIGIN}}**
+**{{FINDING_1_SEVERITY_ICON}} {{FINDING_1_SEVERITY}} Severity** · **🔎 {{FINDING_1_CONFIDENCE}} Audit Confidence** · `{{FINDING_1_CATEGORY}}` · **🏷️ {{FINDING_1_ORIGIN}}**
 
 > **🌿 Branch Impact:** {{FINDING_1_BRANCH_DELTA_MAX_45_WORDS}}
 >
@@ -138,7 +138,7 @@ For baseline audits, replace the content with: "Not applicable. This report is t
 ---
 
 <details>
-<summary><strong>🧪 Technical appendix</strong> · scope, scoring, evidence, and limitations</summary>
+<summary><strong>🧪 Technical Appendix</strong> · scope, scoring, evidence, and limitations</summary>
 
 ## 🔍 Review Scope
 
@@ -149,7 +149,7 @@ For baseline audits, replace the content with: "Not applicable. This report is t
 - **🚪 Full-Report Trigger:** {{TRIGGER_REASON}}
 - **🔎 Audit Confidence:** {{AUDIT_CONFIDENCE}} · {{AUDIT_CONFIDENCE_RATIONALE_MAX_35_WORDS}}
 
-## 🧬 Origin assessment
+## 🧬 Origin Assessment
 
 | Classification                         | Assessment |
 |----------------------------------------|---|
@@ -168,8 +168,8 @@ For baseline audits, replace the content with: "Not applicable. This report is t
 
 ## 🧮 Scoring Boundary
 
-- In **baseline mode**, score all applicable repository findings.
-- In **PR mode**, score findings introduced, worsened, or materially exposed by the branch.
+- In **Baseline Mode**, score all applicable repository findings.
+- In **PR Mode**, score findings introduced, worsened, or materially exposed by the branch.
 - Show unrelated baseline findings separately and do not include them in the PR-scoped score.
 - ✅ **Pass** = 2
 - ⚠️ **Concern** = 1
