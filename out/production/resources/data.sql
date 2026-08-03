@@ -1,2 +1,0 @@
-insert into dispute(id,transaction_id,card_number,customer_email,assigned_analyst) values (1,'TX1001','4111111111111111','alice@test.com','analystA');
-insert into dispute(id,transaction_id,card_number,customer_email,assigned_analyst) values (2,'TX1002','5555555555554444','bob@test.com','analystB');
