@@ -2,9 +2,10 @@
 
 ## 💳 {{CHANGE_TITLE}}
 
-> ### {{DISPOSITION_ICON}} Executive decision: **{{DISPOSITION}}**
+> ### {{DISPOSITION_ICON}} Executive Decision: **{{DISPOSITION}}**
 >
-> **📊 Security score:** {{SCORE_PERCENT}} · **🎯 Risk:** {{RISK}} · **🔎 Confidence:** {{CONFIDENCE}}  
+> **📊 Security Score:** {{SCORE_PERCENT}} · **🚦 Overall Posture:** {{OVERALL_POSTURE}}  
+> **🚨 Highest Finding:** {{HIGHEST_FINDING}} · **🔎 Audit Confidence:** {{AUDIT_CONFIDENCE}}  
 > **🌿 Scope:** `{{CURRENT_BRANCH}}` → `{{BASE_BRANCH}}` · **📅 Reviewed:** {{AUDIT_DATE}}
 
 ---
@@ -34,6 +35,19 @@
 
 ---
 
+## 🧬 Change Security Impact
+
+| Origin                                     | Count | Meaning |
+|--------------------------------------------|---:|---|
+| 🆕 **Introduced by This Change**           | **{{INTRODUCED_COUNT}}** | New weakness that does not exist on the base branch |
+| 📈 **Worsened by This Change**             | **{{WORSENED_COUNT}}** | Existing weakness whose reach, likelihood, or impact increased |
+| 🔦 **Exposed or Exercised by This Change** | **{{EXPOSED_COUNT}}** | Existing vulnerable path newly reached by the changed behavior |
+| 🏛️ **Pre-existing Repository Baseline**    | **{{BASELINE_COUNT}}** | Existing issue not created or materially changed by this branch |
+
+> **Branch Assessment:** {{BRANCH_IMPACT_SUMMARY_MAX_60_WORDS}}
+
+---
+
 ## 🧭 OWASP Top 10 Scorecard
 
 | ID | Security area | Result | Key message |
@@ -58,17 +72,40 @@
 
 ### {{FINDING_1_ICON}} {{FINDING_1_ID}} · {{FINDING_1_TITLE}}
 
-**{{FINDING_1_SEVERITY_ICON}} {{FINDING_1_SEVERITY}} severity** · **🔎 {{FINDING_1_CONFIDENCE}} confidence** · `{{FINDING_1_CATEGORY}}` · **🏷️ {{FINDING_1_ORIGIN}}**
+**{{FINDING_1_SEVERITY_ICON}} {{FINDING_1_SEVERITY}} severity** · **🔎 {{FINDING_1_CONFIDENCE}} audit confidence** · `{{FINDING_1_CATEGORY}}` · **🏷️ {{FINDING_1_ORIGIN}}**
 
-> **💼 Business impact:** {{FINDING_1_BUSINESS_IMPACT_MAX_45_WORDS}}
+> **🌿 Branch Impact:** {{FINDING_1_BRANCH_DELTA_MAX_45_WORDS}}
+>
+> **💼 Business Impact:** {{FINDING_1_BUSINESS_IMPACT_MAX_45_WORDS}}
 
 - **📍 Evidence:** `{{FINDING_1_PATH}}` · `{{FINDING_1_SYMBOL_OR_LINES}}`
-- **👁️ Observed behavior:** {{FINDING_1_EVIDENCE_MAX_55_WORDS}}
-- **⚔️ Attack path:** {{FINDING_1_ATTACK_MAX_55_WORDS}}
-- **🛠️ Developer action:** {{FINDING_1_ACTION_MAX_55_WORDS}}
-- **✅ Done when:** {{FINDING_1_VERIFY_MAX_40_WORDS}}
+- **👁️ Observed Behavior:** {{FINDING_1_EVIDENCE_MAX_55_WORDS}}
+- **⚔️ Attack Path:** {{FINDING_1_ATTACK_MAX_55_WORDS}}
+- **🛠️ Developer Action:** {{FINDING_1_ACTION_MAX_55_WORDS}}
+- **✅ Done When:** {{FINDING_1_VERIFY_MAX_40_WORDS}}
 
-<!-- Repeat this concise block for every actionable finding. Do not create finding blocks for N/A categories. -->
+<!--
+Repeat this concise block for every actionable finding.
+Allowed origin values only:
+- 🆕 Introduced by This Change
+- 📈 Worsened by This Change
+- 🔦 Exposed or Exercised by This Change
+- 🏛️ Pre-existing Repository Baseline
+Do not create finding blocks for N/A categories.
+-->
+
+---
+
+## 🏛️ Known Baseline Risks Outside This Change
+
+<!--
+For PR audits, list only material pre-existing findings that are unrelated to the changed execution path.
+Keep this section brief and do not count these items in the PR-scoped score.
+For baseline audits, replace the content with: "Not applicable. This report is the repository baseline."
+-->
+
+- **{{BASELINE_FINDING_ID}} · {{BASELINE_FINDING_TITLE}}:** {{BASELINE_FINDING_SUMMARY_MAX_30_WORDS}}  
+  **Relationship to this change:** Not introduced, worsened, or exercised by this branch. Refer to the latest baseline audit.
 
 ---
 
@@ -106,22 +143,34 @@
 ## 🔍 Review Scope
 
 - **📦 Repository:** `payment-dispute-manager`
-- **📝 Change summary:** {{CHANGE_SUMMARY}}
-- **🌿 Effective range:** `{{EFFECTIVE_RANGE}}`
-- **📄 Changed files:** {{CHANGED_FILES_OR_BASELINE}}
-- **🚪 Full-report trigger:** {{TRIGGER_REASON}}
+- **📝 Change Summary:** {{CHANGE_SUMMARY}}
+- **🌿 Effective Range:** `{{EFFECTIVE_RANGE}}`
+- **📄 Changed Files:** {{CHANGED_FILES_OR_BASELINE}}
+- **🚪 Full-Report Trigger:** {{TRIGGER_REASON}}
+- **🔎 Audit Confidence:** {{AUDIT_CONFIDENCE}} · {{AUDIT_CONFIDENCE_RATIONALE_MAX_35_WORDS}}
 
-## 🧬 Change versus Baseline
+## 🧬 Origin assessment
 
-| Classification | Assessment |
-|---|---|
-| 🆕 Introduced by this change | {{INTRODUCED_ITEMS_OR_NONE}} |
-| 🔦 Exposed or exercised by this change | {{EXPOSED_ITEMS_OR_NONE}} |
-| 🏛️ Pre-existing repository baseline | {{BASELINE_ITEMS}} |
-| ❓ Evidence gaps | {{EVIDENCE_GAPS}} |
+| Classification                         | Assessment |
+|----------------------------------------|---|
+| 🆕 Introduced by This Change           | {{INTRODUCED_ITEMS_OR_NONE}} |
+| 📈 Worsened by This Change             | {{WORSENED_ITEMS_OR_NONE}} |
+| 🔦 Exposed or Exercised by This Change | {{EXPOSED_ITEMS_OR_NONE}} |
+| 🏛️ Pre-existing Repository Baseline    | {{BASELINE_ITEMS}} |
+| ❓ Evidence Gaps                       | {{EVIDENCE_GAPS}} |
 
-## 🧮 Scoring Detail
+### Origin Decision Rules
 
+- **Introduced:** absent on the base branch and added by this branch.
+- **Worsened:** present on the base branch, but this branch increases reach, likelihood, affected data, or impact.
+- **Exposed or exercised:** present on the base branch and newly reached by changed behavior without modifying the weakness itself.
+- **Baseline:** present on the base branch, unchanged, and unrelated to the changed execution path.
+
+## 🧮 Scoring Boundary
+
+- In **baseline mode**, score all applicable repository findings.
+- In **PR mode**, score findings introduced, worsened, or materially exposed by the branch.
+- Show unrelated baseline findings separately and do not include them in the PR-scoped score.
 - ✅ **Pass** = 2
 - ⚠️ **Concern** = 1
 - ❌ **Fail** = 0
@@ -132,6 +181,13 @@
 ## 📚 Files Inspected
 
 {{FILES_INSPECTED_LIST}}
+
+## 🧾 Evidence Quality
+
+- **Source Review:** {{SOURCE_EVIDENCE_STATUS}}
+- **Configuration Review:** {{CONFIGURATION_EVIDENCE_STATUS}}
+- **Test Evidence:** {{TEST_EVIDENCE_STATUS}}
+- **Runtime Validation:** {{RUNTIME_EVIDENCE_STATUS}}
 
 ## ⚠️ Assumptions and Limitations
 
