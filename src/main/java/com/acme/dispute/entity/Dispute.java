@@ -1,1 +1,18 @@
-package com.acme.dispute.entity; import jakarta.persistence.*; @Entity public class Dispute { @Id @GeneratedValue private Long id; private String transactionId; private String cardNumber; private String customerEmail; private String assignedAnalyst; public Long getId(){return id;} public void setId(Long id){this.id=id;} public String getTransactionId(){return transactionId;} public void setTransactionId(String v){transactionId=v;} public String getCardNumber(){return cardNumber;} public void setCardNumber(String v){cardNumber=v;} public String getCustomerEmail(){return customerEmail;} public void setCustomerEmail(String v){customerEmail=v;} public String getAssignedAnalyst(){return assignedAnalyst;} public void setAssignedAnalyst(String v){assignedAnalyst=v;} }
+package com.acme.dispute.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+@Entity
+@Getter
+@Setter
+public class Dispute {
+	@Id
+	@GeneratedValue
+	private Long id;
+	private String transactionId;
+	private String cardNumber;
+	private String customerEmail;
+	private String assignedAnalyst;
+}
