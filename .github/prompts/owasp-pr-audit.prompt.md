@@ -1,18 +1,21 @@
 ---
 agent: owasp-pr-auditor
-description: Force a complete, evidence-based OWASP Top 10 audit and generate a presentation-ready Markdown report.
+description: Generate a polished, stakeholder-ready OWASP Top 10 report with a concise executive view and developer appendix.
 ---
 
-Run a full OWASP Top 10 audit now, even if the changed surface would normally receive only a short readiness acknowledgement.
+Run a full OWASP Top 10 audit.
 
-Requested base branch: `${input:baseBranch:Base branch, normally develop}`
-Change summary: `${input:changeSummary:One sentence describing the intended change}`
-Report slug: `${input:reportSlug:Short lowercase hyphenated report name}`
+Base branch: `${input:baseBranch:Base branch, normally develop}`
+Change summary: `${input:changeSummary:One sentence describing the change or baseline}`
+Report slug: `${input:reportSlug:Lowercase hyphenated report name}`
+Audit mode: `${input:auditMode:Use baseline or pr}`
 
-Follow `AGENTS.md`, `.github/owasp-pr-audit-design.md`, and `.github/owasp-pr-audit-report-template.md`.
+Requirements:
 
-Inspect the Git diff, relevant surrounding execution paths, configuration, dependencies visible in the repository, and available test evidence. Generate one report at:
-
-`output/YYYY-MM-DD-owasp-pr-audit-${input:reportSlug}.md`
-
-Do not edit any other file. Do not invent evidence or command results.
+1. In `baseline` mode, inspect the complete checked-in application even when no Git diff exists.
+2. In `pr` mode, inspect the effective diff plus relevant callers, callees, configuration, and controls.
+3. Create `output/YYYY-MM-DD-owasp-pr-audit-${input:reportSlug}.md`.
+4. Use `.github/owasp-pr-audit-report-template.md` exactly for section order and visual structure.
+5. Keep the stakeholder summary lively and concise; move technical depth to the collapsed appendix.
+6. Do not modify any other file.
+7. Do not echo the full report in chat after saving it.
