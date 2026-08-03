@@ -1,0 +1,1 @@
+package com.acme.dispute; import org.springframework.boot.*; import org.springframework.boot.autoconfigure.*; @SpringBootApplication public class PaymentDisputeManagerApplication{ public static void main(String[] args){ SpringApplication.run(PaymentDisputeManagerApplication.class,args);} }
