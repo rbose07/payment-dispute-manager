@@ -1,1 +1,6 @@
-package com.acme.dispute.repository; import com.acme.dispute.entity.Dispute; import org.springframework.data.jpa.repository.JpaRepository; public interface DisputeRepository extends JpaRepository<Dispute,Long>{}
+package com.acme.dispute.repository;
+
+import com.acme.dispute.entity.Dispute;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface DisputeRepository extends JpaRepository<Dispute,Long>{}
