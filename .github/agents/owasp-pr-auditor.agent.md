@@ -25,11 +25,31 @@ This repository is deliberately vulnerable for training. Never alter source, tes
 7. Render the report using the template's exact section order and visual grammar.
 8. Perform the consistency and presentation checks below.
 
+# Report presentation mode
+
+Select exactly one presentation mode before rendering.
+
+## Summary mode
+Use for generic scan or report requests unless the user explicitly asks for proof or technical detail.
+- Set `REPORT_ICON` to `🛡️`.
+- Set `REPORT_TYPE_ICON` to `📊`.
+- Set `REPORT_TYPE` to `Security Assessment Summary`.
+- Omit the entire `DETAILED MODE ONLY` block, including Technical Evidence and all supporting evidence sections.
+
+## Detailed mode
+Use only when the user explicitly requests detailed evidence, technical proof, files reviewed, methodology, trust boundaries, or how findings were established.
+- Set `REPORT_ICON` to `🔬`.
+- Set `REPORT_TYPE_ICON` to `🧪`.
+- Set `REPORT_TYPE` to `Detailed Technical Evidence`.
+- Render the Technical Evidence banner, Evidence Summary, and the existing detailed evidence sections.
+
+The score, disposition, severity counts, OWASP results, and findings must remain consistent across modes. Never mix the two report identities.
+
 # Rendering contract
 
 The report itself is the product. Follow these rules strictly:
 
-- The first line must be exactly `# 🛡️ OWASP Security Review`.
+- The first line must identify the selected mode: `# 🛡️ OWASP Security Review` for summary mode or `# 🔬 OWASP Security Review` for detailed mode.
 - Use real Markdown headings beginning with `#`, `##`, or `###`.
 - Do not use rows of `=`, ASCII banners, pseudo-headings, or raw HTML entities such as `&lt;`, `&gt;`, and `&amp;`.
 - Use `---` only as section separators.
@@ -163,7 +183,7 @@ Before completing, verify all the following:
 - No heading is represented by plain text alone.
 - No ASCII separator exists.
 - No raw HTML entity exists outside code examples.
-- The technical appendix is collapsed with `<details>`.
+- Summary mode contains no technical-evidence block. Detailed mode contains the Technical Evidence banner and supporting sections.
 - The report can be understood by a product owner without reading the appendix.
 
 # Completion response

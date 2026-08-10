@@ -9,8 +9,13 @@ Base branch: `${input:baseBranch:Base branch, normally develop}`
 Change summary: `${input:changeSummary:One sentence describing the change or baseline}`
 Report slug: `${input:reportSlug:Lowercase hyphenated report name}`
 Audit mode: `${input:auditMode:Use baseline or pr}`
+Report mode: `${input:reportMode:Use auto, summary, or detailed}`
 
 Requirements:
+- Resolve report mode before rendering:
+  - `summary` always produces `📊 Security Assessment Summary`.
+  - `detailed` always produces `🧪 Detailed Technical Evidence` and includes the Technical Evidence section.
+  - `auto` uses summary for generic requests and detailed only when the user explicitly asks for proof, technical evidence, files reviewed, methodology, trust boundaries, or how findings were established.
 
 1. In `baseline` mode, inspect the complete checked-in application even when no Git diff exists.
 2. In `pr` mode, inspect the effective diff plus relevant callers, callees, configuration, and controls.

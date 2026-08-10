@@ -41,7 +41,9 @@ FINDING INCLUSION RULES
 - Keep each finding concise. Do not omit an actionable finding merely to shorten the report.
 -->
 
-# 🛡️ OWASP Security Review
+# {{REPORT_ICON}} OWASP Security Review
+
+> **{{REPORT_TYPE_ICON}} Report Type:** {{REPORT_TYPE}}
 
 ## 💳 {{REPORT_TITLE}}
 
@@ -135,10 +137,24 @@ Do not create findings for Pass or N/A categories.
 
 <!-- DETAILED MODE ONLY: omit everything from here to the closing marker in EXECUTIVE mode. -->
 
----
-
 <details>
 <summary><strong>🔬 Detailed Review Evidence</strong> · expand to view scope, origin analysis, and proof</summary>
+
+<!-- DETAILED MODE ONLY: omit this entire block in summary mode. -->
+
+---
+
+# 🔬 Technical Evidence
+
+> Supporting code evidence, affected files, origin analysis, and validation coverage.
+
+## 🧾 Evidence Summary
+
+- **Findings with technical proof:** {{PROVEN_FINDING_COUNT}}
+- **Files reviewed:** {{FILES_REVIEWED_COUNT}}
+- **Review method:** {{REVIEW_METHOD}}
+- **Runtime validation:** {{RUNTIME_VALIDATION_STATUS}}
+- **Dependency analysis:** {{DEPENDENCY_ANALYSIS_STATUS}}
 
 ## 🔍 Review Context
 
@@ -205,7 +221,7 @@ Do not create findings for Pass or N/A categories.
 
 > 🤖 This AI-assisted review is **informational and non-gating**. It does not replace penetration testing, SAST, DAST, software-composition analysis, secret scanning, PCI DSS assessment, or human security approval.
 
-> **Risk acceptance:** Proceeding without remediation requires a separate, documented, time-bound decision by the appropriate human risk owner. This report does not recommend or approve a waiver.
+> **Risk Acceptance:** Proceeding without remediation requires a separate, documented, time-bound decision by the appropriate human risk owner. This report does not recommend or approve a waiver.
 
 ### 🚀 Recommended Next Step
 
