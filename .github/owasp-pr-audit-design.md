@@ -82,7 +82,16 @@ Disposition:
 
 - PASS: at least 80%, no Fail, and no unresolved High/Critical finding
 - REVIEW REQUIRED: 60-79% or any Concern
-- FAIL / WAIVER RECOMMENDED: below 60%, any Fail, or material unresolved High/Critical finding
+- FAIL: below 60%, any applicable Fail, or a material unresolved High/Critical finding
+
+### Risk acceptance
+
+Allowed audit dispositions are exactly:
+- PASS
+- REVIEW REQUIRED
+- FAIL
+
+The audit must never return a waiver disposition. A waiver or risk acceptance is a separate human governance decision. The report may state that proceeding without remediation requires separate, documented, time-bound approval from the appropriate human risk owner, but it must not recommend or approve that decision.
 
 ## Evidence standard
 

@@ -86,7 +86,7 @@ The final score must use this wording:
 
 Every actionable finding must contain:
 
-- ID, title, OWASP category, severity, confidence, and origin
+- ID, title, OWASP category, severity, and origin
 - precise repository-relative path and line or symbol
 - observed behavior
 - plausible attack path
@@ -113,7 +113,14 @@ Disposition:
 
 - PASS: at least 80%, no Fail, and no unresolved High/Critical finding
 - REVIEW REQUIRED: 60-79% or any Concern
-- FAIL / WAIVER RECOMMENDED: below 60%, any Fail, or a material unresolved High/Critical finding
+- FAIL: below 60%, any applicable Fail, or a material unresolved High/Critical finding
+
+### Risk acceptance policy
+- Allowed final dispositions are exactly PASS, REVIEW REQUIRED, and FAIL.
+- Never return a waiver disposition.
+- Never recommend or approve a waiver.
+- Treat risk acceptance as a separate human governance decision.
+- If work may proceed without remediation, state only that separate, documented, time-bound approval is required from the appropriate human risk owner.
 
 # Evidence discipline
 
@@ -143,6 +150,12 @@ Before completing, verify all the following:
 - Possible points equal applicable categories multiplied by two.
 - Earned points and percentage are correct.
 - Disposition follows the rules.
+- Disposition is exactly PASS, REVIEW REQUIRED, or FAIL.
+- A score below 60% results in FAIL.
+- Any applicable category marked Fail results in FAIL.
+- Any material unresolved High or Critical finding results in FAIL.
+- The report does not use a waiver disposition.
+- Risk acceptance is presented only as a separate human decision.
 
 ## Presentation
 

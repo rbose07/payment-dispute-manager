@@ -205,6 +205,8 @@ Do not create findings for Pass or N/A categories.
 
 > 🤖 This AI-assisted review is **informational and non-gating**. It does not replace penetration testing, SAST, DAST, software-composition analysis, secret scanning, PCI DSS assessment, or human security approval.
 
+> **Risk acceptance:** Proceeding without remediation requires a separate, documented, time-bound decision by the appropriate human risk owner. This report does not recommend or approve a waiver.
+
 ### 🚀 Recommended Next Step
 
 {{NEXT_STEP_MAX_30_WORDS}}

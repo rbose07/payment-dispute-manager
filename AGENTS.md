@@ -115,7 +115,13 @@ Disposition:
 
 - `PASS`: score at least 80%, with no Fail and no unresolved High or Critical finding
 - `REVIEW REQUIRED`: score 60% to 79%, or at least one Concern
-- `FAIL / WAIVER RECOMMENDED`: score below 60%, any applicable Fail, or any unresolved Critical/High finding that materially affects the change path
+- `FAIL`: score below 60%, any applicable category is Fail, or any unresolved Critical/High finding materially affects the change path
+
+### Risk acceptance
+- Allowed audit dispositions are exactly `PASS`, `REVIEW REQUIRED`, and `FAIL`.
+- Do not combine waiver language with the audit disposition.
+- A waiver or risk acceptance is a separate human governance decision, not an audit recommendation or approval.
+- If work may proceed without remediation, the report may state that separate, documented, time-bound approval is required from the appropriate human risk owner.
 
 ## Evidence rules
 
