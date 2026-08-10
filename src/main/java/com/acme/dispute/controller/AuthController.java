@@ -1,14 +1,17 @@
 package com.acme.dispute.controller;
 
-import org.springframework.web.bind.annotation.*;
+import java.security.Principal;
+import java.util.Map;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-	@PostMapping("/login")
-	public String login(@RequestParam String username, @RequestParam String password){
-		if("admin".equals(username) && "admin123".equals(password))
-			return "SUCCESS";
-		return "FAILED";
-	}
+
+    @GetMapping("/status")
+    public Map<String, String> status(Principal principal) {
+        return Map.of("authenticatedUser", principal.getName());
+    }
 }

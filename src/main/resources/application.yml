@@ -1,10 +1,23 @@
 spring:
   h2:
     console:
-      enabled: true
+      enabled: false
   datasource:
     url: jdbc:h2:mem:testdb
   jpa:
     hibernate:
       ddl-auto: create
     defer-datasource-initialization: true
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+demo:
+  users:
+    analyst-a-password: ${DEMO_ANALYST_A_PASSWORD}
+    analyst-b-password: ${DEMO_ANALYST_B_PASSWORD}
+    admin-password: ${DEMO_ADMIN_PASSWORD}
+
+app:
+  upload-dir: ${UPLOAD_DIR:./secure-uploads}
