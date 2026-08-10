@@ -114,9 +114,10 @@ Every actionable finding must contain:
 - developer action
 - objective completion criterion
 
-Origin must be one of:
+Origin must be exactly one of:
 
 - Introduced by this change
+- Worsened by this change
 - Exposed or exercised by this change
 - Pre-existing repository baseline
 
@@ -149,6 +150,43 @@ Disposition:
 - Missing logging is a Concern unless direct evidence supports a stronger result.
 - Distinguish unsafe design patterns from demonstrated compromise.
 - Validate source rendering. Java generics must appear as `Map<String, Object>`, not HTML-escaped text.
+
+## Icon and label mappings
+
+Use these mappings exactly. Never select an icon independently of its label.
+
+Severity:
+
+- Critical = `🚨`
+- High = `🔴`
+- Medium = `🟠`
+- Low = `🔵`
+- Informational = `ℹ️`
+
+Finding origin:
+
+- Introduced by this change = `🆕`
+- Worsened by this change = `📈`
+- Exposed or exercised by this change = `🔦`
+- Pre-existing repository baseline = `🏛️`
+
+OWASP result:
+
+- Pass = `✅`
+- Concern = `⚠️`
+- Fail = `❌`
+- N/A = `➖`
+
+Final disposition:
+
+- PASS = `✅`
+- REVIEW REQUIRED = `⚠️`
+- FAIL = `❌`
+
+Report mode:
+
+- Security Assessment Summary = report icon `🛡️` and report-type icon `📊`
+- Detailed Technical Evidence = report icon `🔬` and report-type icon `🧪`
 
 # Final checks
 
@@ -185,6 +223,32 @@ Before completing, verify all the following:
 - No raw HTML entity exists outside code examples.
 - Summary mode contains no technical-evidence block. Detailed mode contains the Technical Evidence banner and supporting sections.
 - The report can be understood by a product owner without reading the appendix.
+
+## Claim strength
+
+Match the wording of every claim to the available evidence.
+
+- Use `does`, `allows`, or `will` only when source evidence or validated runtime evidence directly establishes the behavior.
+- Use `can` when the complete attack path is directly supported by the reviewed implementation.
+- Use `may` or `could` when deployment, configuration, permissions, or runtime conditions are required.
+- Use `not validated` when the repository cannot establish runtime reachability, deployed access control, database privileges, transport security, or content execution.
+
+Do not convert a plausible attack scenario into a confirmed runtime fact.
+
+Examples:
+
+- If the H2 console is enabled, state that it may expose database access if reachable outside a controlled environment. Do not claim anonymous database access unless runtime evidence proves it.
+- If an upload uses a caller-controlled filename, state that it may permit path traversal or unintended overwrite. Do not claim code execution unless the deployment proves uploaded content is executable.
+- Treat demonstration PAN values as synthetic data while reporting the unsafe full-PAN handling pattern and its potential production consequence.
+
+### Icon consistency
+
+- Every severity icon matches its severity label.
+- Every origin icon matches its origin label.
+- Every scorecard icon matches its result.
+- The disposition icon matches the final decision.
+- The report icon and report-type icon match the selected report mode.
+- No icon is selected independently of its associated label.
 
 # Completion response
 
