@@ -1,12 +1,11 @@
-
 # 🛡️ OWASP Security Review
 
-## 💳 Repository Baseline Scan
+## 💳 Full repository audit: payment-dispute-manager (detailed)
 
-> ### ❌ Final Decision: **FAIL / WAIVER RECOMMENDED**
+> ### ❌ Final Decision: **FAIL**
 >
-> **📊 Security Score:** 21% · **🚦 Overall Posture:** High risk
-> **🚨 Highest Finding:** Multiple High findings (A01, A02, A03, A07)
+> **📊 Security Score:** 21% · **🚦 Overall Posture:** High risk  
+> **🚨 Highest Finding:** Injection and cleartext PAN storage  
 > **🌿 Branch:** `develop` · **Compared with:** `develop` · **📅 Reviewed:** 2026-08-10
 
 ---
@@ -15,20 +14,20 @@
 
 | 🚨 Critical | 🔴 High | 🟠 Medium | 🔵 Low | ✅ Passed | ➖ N/A |
 |---:|---:|---:|---:|---:|---:|
-| **0** | **4** | **3** | **0** | **0** | **3** |
+| **2** | **2** | **2** | **0** | **0** | **3** |
 
 ### 💼 Report Summary
 
-This baseline audit found multiple high-severity, pre-existing issues including hard‑coded credentials, unparameterized SQL, plaintext PANs, and missing access controls. Remediation is required before production use.
+This detailed baseline audit of the checked-in application found multiple high-severity issues: SQL injection in a service method, full card numbers stored in seed data and entity fields, unauthenticated endpoints with hardcoded credentials, and unsafe file handling. These weaknesses expose payment and customer data and must be remediated before any production use.
 
 ### 🎯 Top Actions
 
-1. **❌ Enforce access control** · High  
-   Require authentication and per-resource authorization on `/api/disputes/**`.
-2. **❌ Remove full PANs from repo** · High  
-   Remove or redact seeded PANs and store only masked or tokenized card identifiers.
-3. **❌ Parameterize DB queries** · High  
-   Replace string-concatenated SQL with prepared statements or JPA repository methods.
+1. **❌ Fix SQL injection** · Critical  
+   Convert `searchByEmail` to parameterized queries or repository methods.
+2. **❌ Protect sensitive data (PANs)** · Critical  
+   Remove PANs from seed data; tokenize or encrypt at rest and mask in responses.
+3. **🔐 Implement authentication & hardening** · High  
+   Add Spring Security, remove hardcoded creds, and disable H2 console in production.
 
 ---
 
@@ -36,16 +35,16 @@ This baseline audit found multiple high-severity, pre-existing issues including 
 
 | ID | Security Area | Result | Key Message |
 |:--:|---|:--:|---|
-| 🔐 A01 | Broken Access Control | ❌ Fail | Endpoints expose disputes without ownership checks |
-| 🔏 A02 | Cryptographic Failures | ❌ Fail | Full PAN stored in entity and seed data |
-| 💉 A03 | Injection | ❌ Fail | SQL built from untrusted input in service layer |
-| 🏗️ A04 | Insecure Design | ⚠️ Concern | Unsafe file upload path and filename handling |
-| ⚙️ A05 | Security Misconfiguration | ⚠️ Concern | H2 console enabled; auto DDL create active |
-| 📦 A06 | Vulnerable and Outdated Components | ➖ N/A | No SCA or advisory evidence in repo |
-| 🪪 A07 | Identification and Authentication Failures | ❌ Fail | Hard-coded admin credentials in controller |
-| 🔗 A08 | Software and Data Integrity Failures | ➖ N/A | No deserialization or integrity evidence found |
-| 📡 A09 | Security Logging and Monitoring Failures | ⚠️ Concern | Missing authentication and audit logging |
-| 🌐 A10 | Server-Side Request Forgery | ➖ N/A | No outbound HTTP calls observed |
+| 🔐 A01 | Broken Access Control | ❌ Fail | Endpoints expose sensitive data without auth |
+| 🔏 A02 | Cryptographic Failures | ❌ Fail | Full PANs stored in plaintext in DB and seeds |
+| 💉 A03 | Injection | ❌ Fail | SQL constructed from untrusted input in service layer |
+| 🏗️ A04 | Insecure Design | ⚠️ Concern | No data minimization or privacy controls |
+| ⚙️ A05 | Security Misconfiguration | ⚠️ Concern | H2 console enabled; unsafe file writes |
+| 📦 A06 | Vulnerable and Outdated Components | ➖ N/A | No SCA evidence available in repository
+| 🪪 A07 | Identification & Auth Failures | ❌ Fail | Hardcoded credentials and weak login flow |
+| 🔗 A08 | Software & Data Integrity Failures | ➖ N/A | No supply-chain evidence in repo scan
+| 📡 A09 | Security Logging & Monitoring Failures | ⚠️ Concern | No audit or structured logging present |
+| 🌐 A10 | Server-Side Request Forgery | ➖ N/A | No outbound HTTP sinks observed in codebase |
 
 **Legend:** ✅ Pass · ⚠️ Concern · ❌ Fail · ➖ N/A
 
@@ -61,143 +60,246 @@ This baseline audit found multiple high-severity, pre-existing issues including 
 
 ## 🚨 Findings Requiring Action
 
-> **Coverage:** 7 actionable findings are listed below. Pass and N/A categories are excluded.
+> **Coverage:** 6 actionable findings are listed below. Pass and N/A categories are excluded.
 
-### ❌ FIND-001 · A01 Broken Access Control on dispute endpoints
+### ❌ F001 · SQL Injection in DisputeService.searchByEmail
 
-**🔴 High Severity** · `A01: Broken Access Control`  
-**📍 Origin:** Pre-existing repository baseline
+**❌ Critical Severity** · `💉 Injection`  
+**🛈 Origin:** Pre-existing repository baseline
 
-> **💼 Business Impact:** Any user can read or search dispute records, exposing customer data and enabling enumeration.
+> **💼 Business Impact:** An attacker controlling the `email` query parameter can inject SQL, allowing exfiltration or modification of dispute and payment data (including PANs).
+
+<details>
+<summary><strong>🧑‍💻 Developer Details</strong></summary>
+
+- **📍 Location:** `src/main/java/com/acme/dispute/service/DisputeService.java` · lines 20-23
+- **👁️ Issue:** `searchByEmail` builds SQL using string concatenation: `String sql="select * from dispute where customer_email=+email+"` and passes it to `jdbc.queryForList(sql)`.
+- **🛠️ Required Outcome:** Use parameterized queries (e.g., `jdbc.queryForList(String sql, Object... args)`) or Spring Data repository methods with method derivation: `List<Dispute> findByCustomerEmail(String email)`. Validate and normalize input.
+- **✅ Complete When:** Service uses parameter binding or repository call and unit/integration tests verify malicious payloads are not executed; SAST scan flags resolved.
+
+</details>
+
+---
+
+### ❌ F002 · Cleartext PANs persisted in seed data and entity
+
+**❌ Critical Severity** · `🔏 Cryptographic Failures`  
+**🛈 Origin:** Pre-existing repository baseline
+
+> **💼 Business Impact:** Full Primary Account Numbers (PANs) are present in `data.sql` and the `Dispute` entity stores `cardNumber` as a plain String. This creates a clear PCI-compliance and data breach risk.
+
+<details>
+<summary><strong>🧑‍💻 Developer Details</strong></summary>
+
+- **📍 Location:** `src/main/resources/data.sql` · lines 1-2; `src/main/java/com/acme/dispute/entity/Dispute.java` · line 15
+- **👁️ Issue:** `data.sql` contains seeded PANs (`4111111111111111`, `5555555555554444`). The `Dispute` entity holds `cardNumber` unencrypted.
+- **🛠️ Required Outcome:** Remove PANs from repository seed data; adopt tokenization or format-preserving encryption; store only truncated/masked PANs in application logs and responses.
+- **✅ Complete When:** No PANs exist in repo seeds; PANs at rest are encrypted/tokenized and verification shows stored values are not full PANs.
+
+</details>
+
+---
+
+### ❌ F003 · Missing access controls on dispute endpoints
+
+**🔴 High Severity** · `🔐 Broken Access Control`  
+**🛈 Origin:** Pre-existing repository baseline
+
+> **💼 Business Impact:** Public endpoints allow retrieval of dispute records and sensitive fields without authentication, enabling data leaks.
 
 <details>
 <summary><strong>🧑‍💻 Developer Details</strong></summary>
 
 - **📍 Location:** `src/main/java/com/acme/dispute/controller/DisputeController.java` · lines 15-23
-- **🔎 Confidence:** High — public controller methods have no auth checks
-- **👁️ Issue:** `get(id)` and `search(email)` return dispute data without authentication or ownership checks.
-- **🛠️ Required Outcome:** Enforce authentication and per-resource access control; validate ownership or roles.
-- **✅ Complete When:** Endpoints require a valid principal and only return disputes the principal is authorized to view.
+- **👁️ Issue:** Controller exposes `GET /api/disputes/{id}` and `GET /api/disputes/search` without authentication or authorization checks.
+- **🛠️ Required Outcome:** Integrate Spring Security with role-based access control; redact card number and sensitive fields from public DTOs.
+- **✅ Complete When:** Endpoints require authenticated accounts with appropriate roles; automated tests verify unauthorized requests return 401/403.
 
 </details>
 
 ---
 
-### ❌ FIND-002 · A02 Plaintext PANs stored in code and seed data
+### ❌ F004 · Hardcoded credentials and weak auth
 
-**🔴 High Severity** · `A02: Cryptographic Failures`  
-**📍 Origin:** Pre-existing repository baseline
+**🔴 High Severity** · `🪪 Identification and Authentication Failures`  
+**🛈 Origin:** Pre-existing repository baseline
 
-> **💼 Business Impact:** Full card PANs present in `Dispute.cardNumber` and `data.sql` increase breach and PCI risks.
-
-<details>
-<summary><strong>🧑‍💻 Developer Details</strong></summary>
-
-- **📍 Location:** `src/main/java/com/acme/dispute/entity/Dispute.java` · lines 14-16; `src/main/resources/data.sql` · lines 1-2
-- **🔎 Confidence:** High — PANs visible in seed SQL and model field exists
-- **👁️ Issue:** `cardNumber` stored as plaintext and sample full PANs committed to `data.sql`.
-- **🛠️ Required Outcome:** Remove full PANs from source, store only masked or tokenized values, and apply encryption if full PAN retention is necessary.
-- **✅ Complete When:** No full PANs in repository; CI checks reject PAN-like strings; storage uses tokenization/encryption.
-
-</details>
-
----
-
-### ❌ FIND-003 · A03 SQL injection in searchByEmail
-
-**🔴 High Severity** · `A03: Injection`  
-**📍 Origin:** Pre-existing repository baseline
-
-> **💼 Business Impact:** An attacker-controlled `email` parameter can inject SQL, leading to data exfiltration or modification.
-
-<details>
-<summary><strong>🧑‍💻 Developer Details</strong></summary>
-
-- **📍 Location:** `src/main/java/com/acme/dispute/service/DisputeService.java` · lines 20-22
-- **🔎 Confidence:** High — SQL string concatenation observed and executed via JdbcTemplate
-- **👁️ Issue:** SQL assembled as `"select * from dispute where customer_email=+email+"` and executed via `jdbc.queryForList` without parameter binding.
-- **🛠️ Required Outcome:** Use parameterized queries (e.g., `jdbc.queryForList("select * from dispute where customer_email = ?", email)`), or JPA repository query methods.
-- **✅ Complete When:** Dynamic SQL concatenation removed; tests validate inputs with SQL metacharacters are safe.
-
-</details>
-
----
-
-### ❌ FIND-004 · A07 Hard-coded credentials in AuthController
-
-**🔴 High Severity** · `A07: Identification and Authentication Failures`  
-**📍 Origin:** Pre-existing repository baseline
-
-> **💼 Business Impact:** Hard-coded credentials (`admin`/`admin123`) enable trivial compromise and bypass of authentication in any deployed instance.
+> **💼 Business Impact:** Literal credentials in `AuthController` (`admin` / `admin123`) allow trivial compromise of admin actions or test accounts.
 
 <details>
 <summary><strong>🧑‍💻 Developer Details</strong></summary>
 
 - **📍 Location:** `src/main/java/com/acme/dispute/controller/AuthController.java` · lines 8-12
-- **🔎 Confidence:** High — credential literals visible in source
-- **👁️ Issue:** Username/password checked against hard-coded literals; no secure auth mechanism present.
-- **🛠️ Required Outcome:** Integrate a proper authentication provider (e.g., Spring Security with hashed credentials or external IdP); remove hard-coded secrets from code.
-- **✅ Complete When:** No credentials hard-coded; authentication uses secure provider and hashed passwords.
+- **👁️ Issue:** `login` compares input to hardcoded strings and returns plaintext status. No password hashing, no account management.
+- **🛠️ Required Outcome:** Remove hardcoded credentials, adopt secure auth storage (hashed passwords), use Spring Security and session/token management, and add rate limiting/account lockout.
+- **✅ Complete When:** No hardcoded secrets; authentication uses secure store and hashing; tests validate correct behavior.
 
 </details>
 
 ---
 
-### ⚠️ FIND-005 · A04 Unsafe file upload handling
+### ❗ F005 · Unsafe file upload and filesystem writes
 
-**🟠 Medium Severity** · `A04: Insecure Design`  
-**📍 Origin:** Pre-existing repository baseline
+**🟠 Medium Severity** · `⚙️ Security Misconfiguration`  
+**🛈 Origin:** Pre-existing repository baseline
 
-> **💼 Business Impact:** Uploads saved using `file.getOriginalFilename()` may allow path traversal or overwrite, enabling data tampering or remote code issues.
+> **💼 Business Impact:** Unvalidated `originalFilename` written to `uploads/` can enable path traversal, overwriting files, or storing harmful content.
 
 <details>
 <summary><strong>🧑‍💻 Developer Details</strong></summary>
 
-- **📍 Location:** `src/main/java/com/acme/dispute/controller/FileUploadController.java` · lines 9-13
-- **🔎 Confidence:** Medium — simple file write observed, but attacker-controlled filename impact depends on runtime paths
-- **👁️ Issue:** `file.transferTo(new File("uploads/" + file.getOriginalFilename()))` uses attacker-controlled filename without validation.
-- **🛠️ Required Outcome:** Validate/sanitize filenames, restrict to a safe upload directory, randomize stored names, and enforce size/type checks.
-- **✅ Complete When:** Upload endpoint rejects filenames containing path separators; files stored with generated safe names; unit tests validate traversal attempts fail.
+- **📍 Location:** `src/main/java/com/acme/dispute/controller/FileUploadController.java` · lines 9-12
+- **👁️ Issue:** `file.transferTo(new File("uploads/" + file.getOriginalFilename()))` writes user-provided filename directly.
+- **🛠️ Required Outcome:** Sanitize filenames, enforce storage in a controlled directory, validate file types/sizes, and scan for malware.
+- **✅ Complete When:** Uploads use safe storage utilities; tests include path-traversal attempts that are rejected.
 
 </details>
 
 ---
 
-### ⚠️ FIND-006 · A05 H2 console and auto DDL enabled
+### ❗ F006 · Lack of security logging and monitoring
 
-**🟠 Medium Severity** · `A05: Security Misconfiguration`  
-**📍 Origin:** Pre-existing repository baseline
+**🟠 Medium Severity** · `📡 Security Logging and Monitoring Failures`  
+**🛈 Origin:** Pre-existing repository baseline
 
-> **💼 Business Impact:** H2 console enabled (`application.yml`) and `ddl-auto: create` increase attack surface and risk of data exposure in non-development environments.
+> **💼 Business Impact:** No structured audit logs for authentication, data access, or file uploads; incidents may go undetected and forensics are limited.
 
 <details>
 <summary><strong>🧑‍💻 Developer Details</strong></summary>
 
-- **📍 Location:** `src/main/resources/application.yml` · lines 1-10
-- **🔎 Confidence:** High — console enabled and ddl-auto set to create in config
-- **👁️ Issue:** `spring.h2.console.enabled: true` and `hibernate.ddl-auto: create` present in config.
-- **🛠️ Required Outcome:** Disable H2 console in production profiles and use migrations (Flyway/Liquibase) instead of destructive DDL settings.
-- **✅ Complete When:** Sensitive consoles disabled in non-dev profiles; migrations manage schema changes.
+- **📍 Location:** multiple controllers/services (e.g., `DisputeController.java`, `FileUploadController.java`)
+- **👁️ Issue:** No logging or audit hooks observed for sensitive operations.
+- **🛠️ Required Outcome:** Add structured audit logging (user, action, resource, timestamp) for sensitive operations and integrate with monitoring/alerting.
+- **✅ Complete When:** Logs capture key events and alerts are produced for suspicious activity.
 
 </details>
 
 ---
 
-### ⚠️ FIND-007 · A09 Missing authentication and audit logging
-
-**🟠 Medium Severity** · `A09: Security Logging and Monitoring Failures`  
-**📍 Origin:** Pre-existing repository baseline
-
-> **💼 Business Impact:** Missing authentication logs and audit trails reduce detection and response capability after incidents.
-
 <details>
-<summary><strong>🧑‍💻 Developer Details</strong></summary>
+<summary><strong>🔬 Detailed Review Evidence</strong> · expand to view scope, origin analysis, and proof</summary>
 
-- **📍 Location:** project-wide (no auth/logging code present); see controllers and service classes.
-- **🔎 Confidence:** Medium — absence of logging hooks is clear; integration with monitoring unknown
-- **👁️ Issue:** No evidence of authentication auditing, login attempt logging, or access logs for sensitive operations.
-- **🛠️ Required Outcome:** Integrate structured audit logging for authentication events and sensitive actions; ensure logs are centrally collected and monitored.
-- **✅ Complete When:** Authentication and critical operations produce audit logs; tests or runtime checks show logs contain user id, action, timestamp.
+## 🔍 Review Context
+
+- **📦 Repository:** `payment-dispute-manager-gradle`
+- **📝 Request:** Full repository OWASP Top 10 audit (detailed mode)
+- **🌿 Branch Comparison:** `develop` against `develop` (baseline)
+- **🔀 Effective Change Range:** No code changes in the effective range; this is a baseline repository scan of the checked-in code. (Used `develop...HEAD` which shows develop at HEAD.)
+- **📄 Reviewed Surface:** All production Java packages: `controller`, `service`, `repository`, `entity`, configuration and seed data under `src/main`.
+- **🚪 Audit Trigger:** Manual request for full repository audit.
+
+## 🧬 Origin Assessment
+
+| Origin | Findings | Assessment |
+|---|---:|---|
+| 🆕 Introduced by This Change | **0** | No change-specific introductions in the reviewed range |
+| 📈 Worsened by This Change | **0** | No changes worsen existing issues |
+| 🔦 Exposed or Exercised by This Change | **0** | No exposure by a change; this is baseline evidence |
+| 🏛️ Pre-existing Repository Baseline | **6** | Multiple high-severity baseline findings (F001–F006)
+
+### Origin Rules Applied
+
+- **Introduced:** absent on the base branch and added by the reviewed change. (Not applicable)
+- **Worsened:** present on the base, with increased reach or impact. (Not applicable)
+- **Exposed or exercised:** present on the base and newly reached by changed behavior. (Not applicable)
+- **Baseline:** present on the base branch, unchanged, and observed in the checked-in code.
+
+## 🧾 Finding Evidence
+
+### F001 · Technical Proof (SQL Injection)
+
+- **File:** `src/main/java/com/acme/dispute/service/DisputeService.java`
+- **Symbol or Lines:** `searchByEmail` method (lines 20-23)
+- **Observed Behavior:** Builds SQL using string concatenation and passes to `JdbcTemplate#queryForList`.
+- **Trust Boundary:** `email` is controller-supplied query parameter from `DisputeController.search` and flows directly into SQL.
+- **Attack Scenario:** HTTP GET /api/disputes/search?email=anything' OR '1'='1 would alter logic and return all rows, exposing PANs.
+- **Suggested Direction:** Replace with parameterized query or Spring Data repository method.
+- **Verification Approach:** Unit/integration tests that assert payloads containing SQL characters do not change query behavior; SAST no longer flags this pattern.
+
+### F002 · Technical Proof (Cleartext PANs)
+
+- **File:** `src/main/resources/data.sql` (lines 1-2); `src/main/java/com/acme/dispute/entity/Dispute.java` (line 15)
+- **Observed Behavior:** Seeded PANs present, entity stores `cardNumber` as String.
+- **Trust Boundary:** Repository and database store sensitive payment data in plaintext.
+- **Attack Scenario:** Data-breach or insider access exposes full PANs, causing PCI breach and regulatory fines.
+- **Suggested Direction:** Remove PANs from repo; use tokenization/encryption and mask in DTOs.
+- **Verification Approach:** Repository no longer contains clear PANs; DB stores tokens or encrypted values.
+
+## 📚 Files Reviewed
+
+- src/main/java/com/acme/dispute/controller/DisputeController.java
+- src/main/java/com/acme/dispute/controller/AuthController.java
+- src/main/java/com/acme/dispute/controller/FileUploadController.java
+- src/main/java/com/acme/dispute/service/DisputeService.java
+- src/main/java/com/acme/dispute/entity/Dispute.java
+- src/main/java/com/acme/dispute/repository/DisputeRepository.java
+- src/main/resources/application.yml
+- src/main/resources/data.sql
+- build.gradle
+
+## 🧪 Evidence Quality
+
+- **Source Review:** Complete for checked-in Java sources and resources.
+- **Configuration Review:** Application config and seed data inspected (`application.yml`, `data.sql`).
+- **Test Evidence:** No tests present asserting security controls; test evidence absent.
+- **Runtime Validation:** Not performed (no running instance examined). Evidence is static source/config review.
+- **Dependency Evidence:** No SCA performed; dependency CVEs not evaluated (A06 marked N/A).
+
+## ⚠️ Assumptions and Limitations
+
+- This is a static repository scan of the checked-in code on branch `develop`; no runtime or CI pipeline artifacts were examined.
+- No SCA or automated dependency scan was run; A06 is marked N/A for lack of evidence.
+- No runtime logs or environment-specific secrets were available; detection of runtime protections is out of scope.
+
+### Commands and outputs used as evidence
+
+```
+git status --short
+```
+
+Output:
+
+```
+ M .github/owasp-pr-audit-report-template.md
+D  output/2026-08-10-owasp-pr-audit-full.md
+?? output/2026-08-07-owasp-pr-audit-repo-scan.md
+?? output/2026-08-10-owasp-pr-audit-repo-scan.md
+```
+
+```
+git branch --show-current
+```
+
+Output:
+
+```
+develop
+```
+
+```
+git diff --unified=80 develop...HEAD
+```
+
+Output: (no application code changes between base and HEAD; only local output files differ)
+
+```
+git log --oneline --decorate -10
+```
+
+Output (truncated):
+
+```
+414861b (HEAD -> develop, origin/develop, origin/HEAD) Update agent guardrail failure
+2aa679a Update report template
+7f54b64 (origin/fixes) Upgrade to J21
+eb173f6 Update audit template and prompts
+b5bfdea Update audit template and prompts
+95b77dd Add init report
+025467c Add Owasp agents
+73796a4 Add Lombok
+4c5d301 Add Lombok
+bd6b43a (copilot/worktree-2026-08-03T14-00-39) Add Readme
+```
 
 </details>
 
@@ -207,7 +309,9 @@ This baseline audit found multiple high-severity, pre-existing issues including 
 
 > 🤖 This AI-assisted review is **informational and non-gating**. It does not replace penetration testing, SAST, DAST, software-composition analysis, secret scanning, PCI DSS assessment, or human security approval.
 
+> **Risk acceptance:** Proceeding without remediation requires a separate, documented, time-bound decision by the appropriate human risk owner. This report does not recommend or approve a waiver.
+
 ### 🚀 Recommended Next Step
 
-Prioritize FIND-001 through FIND-004 remediation, then run SAST and SCA tools and re-audit.
+Run the prioritized fixes for F001–F004, then perform SAST and SCA scans and a focused penetration test.
 
