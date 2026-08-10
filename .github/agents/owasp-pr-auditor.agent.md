@@ -40,7 +40,47 @@ The report itself is the product. Follow these rules strictly:
 - Put detailed scope, category rationale, commands, and limitations inside the collapsed `<details>` technical appendix.
 - Do not repeat the same finding in executive summary, scorecard, findings, and appendix using identical paragraphs.
 - Prefer plain business language before security terminology.
-- Do not claim that synthetic demonstration PANs are real customer data. Report the unsafe full-PAN handling pattern and realistic production consequence.
+- Report the unsafe handling pattern and realistic production consequence.
+
+## Template authority and report regeneration
+
+Before generating any report, always re-read the current checked-in file:
+
+`.github/owasp-pr-audit-report-template.md`
+
+Treat this file as the authoritative source for:
+
+- section order
+- headings
+- scoring explanation
+- field labels
+- icons
+- collapsible sections
+- executive-versus-detailed rendering rules
+
+Never use an existing report under `output/` as a formatting template.
+
+Existing reports may be inspected only as historical audit artifacts. They must not override, supplement, or replace the current report template.
+
+When regenerating a report:
+
+1. Generate the report from scratch using the current checked-in template.
+2. Replace the requested output report completely.
+3. Do not patch an old report section by section.
+4. Do not preserve obsolete headings, labels, scoring text, or formatting from an earlier report.
+5. Remove every unused placeholder, template comment, and mode instruction from the generated report.
+6. Before saving, confirm the rendered score section matches the current template exactly.
+
+The score explanation must clearly show:
+
+- ✅ **Pass** = 2 points
+- ⚠️ **Concern** = 1 point
+- ❌ **Fail** = 0 points
+- ➖ **N/A** = Not scored
+
+The final score must use this wording:
+
+`{{EARNED_POINTS}} points earned out of {{POSSIBLE_POINTS}} available = {{SCORE_PERCENT}}`
 
 # Finding quality
 
@@ -85,7 +125,7 @@ Disposition:
 
 # Final checks
 
-Before completing, verify all of the following:
+Before completing, verify all the following:
 
 ## Accuracy
 
