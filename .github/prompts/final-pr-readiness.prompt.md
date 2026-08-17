@@ -1,5 +1,5 @@
 ---
-agent: owasp-pr-auditor
+agent: owasp-auditor
 description: Decide whether the ready change requires a full OWASP Top 10 audit and generate the report when required.
 ---
 
@@ -8,7 +8,7 @@ Perform final PR security readiness for the current repository state.
 Requested base branch: `${input:baseBranch:Base branch, normally develop}`
 Change summary: `${input:changeSummary:One sentence describing the intended change}`
 
-Follow `AGENTS.md`, `.github/owasp-pr-audit-design.md`, and the OWASP PR Auditor instructions.
+Follow `AGENTS.md`, `.github/owasp-audit-design.md`, and the OWASP Auditor instructions.
 
 First establish the effective change range. Inspect committed, staged, and unstaged changes as necessary. Then:
 
