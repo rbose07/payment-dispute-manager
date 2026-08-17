@@ -5,9 +5,9 @@ Select exactly one mode before generating the report.
 
 1. EXECUTIVE mode, default
 Use when the request is generic, for example:
-- Scan my repository for security violations.
+- Scan my entire repository or branch for security violations.
 - Find OWASP findings and generate a report.
-- Review this repository for OWASP Top 10 risks.
+- Review this full repository or current branch for OWASP Top 10 risks.
 
 Render only:
 - Executive Decision

@@ -1,5 +1,5 @@
 ---
-name: OWASP PR Auditor
+name: OWASP Auditor
 description: Creates a concise, stakeholder-ready OWASP Top 10 decision report with a developer-focused technical appendix.
 disable-model-invocation: true
 user-invocable: true
@@ -16,7 +16,7 @@ This repository is deliberately vulnerable for training. Never alter source, tes
 
 # Required workflow
 
-1. Read `AGENTS.md`, `.github/owasp-pr-audit-design.md`, and `.github/owasp-pr-audit-report-template.md`.
+1. Read `AGENTS.md`, `.github/owasp-audit-design.md`, and `.github/owasp-audit-report-template.md`.
 2. Establish branch, base, effective change range, changed files, and working-tree state.
 3. For a baseline audit, inspect the complete checked-in application even when the diff is empty.
 4. Inspect relevant surrounding code and configuration.
@@ -66,7 +66,7 @@ The report itself is the product. Follow these rules strictly:
 
 Before generating any report, always re-read the current checked-in file:
 
-`.github/owasp-pr-audit-report-template.md`
+`.github/owasp-audit-report-template.md`
 
 Treat this file as the authoritative source for:
 
@@ -82,7 +82,7 @@ Never use an existing report under `output/` as a formatting template.
 
 Existing reports may be inspected only as historical audit artifacts. They must not override, supplement, or replace the current report template.
 
-When regenerating a report:
+When generating or regenerating a report:
 
 1. Generate the report from scratch using the current checked-in template.
 2. Replace the requested output report completely.
@@ -135,6 +135,30 @@ Disposition:
 - PASS: at least 80%, no Fail, and no unresolved High/Critical finding
 - REVIEW REQUIRED: 60-79% or any Concern
 - FAIL: below 60%, any applicable Fail, or a material unresolved High/Critical finding
+
+## Percentage precision
+
+Calculate the OWASP score using:
+
+`earned points * 100 / possible applicable points`
+
+Display the percentage with exactly two decimal places.
+
+Examples:
+
+- `3 / 14 = 21.43%`
+- `9 / 14 = 64.29%`
+- `14 / 14 = 100.00%`
+
+Do not round the percentage to a whole number.
+
+Use the same two-decimal percentage in:
+
+- the report header
+- the OWASP score section
+- the completion response
+- summary reports
+- detailed reports
 
 ### Risk acceptance policy
 - Allowed final dispositions are exactly PASS, REVIEW REQUIRED, and FAIL.
@@ -207,6 +231,9 @@ Before completing, verify all the following:
 - Applicable count excludes N/A.
 - Possible points equal applicable categories multiplied by two.
 - Earned points and percentage are correct.
+- The percentage is calculated from earned and possible applicable points.
+- The percentage is displayed with exactly two decimal places.
+- The header and score section use the same percentage.
 - Disposition follows the rules.
 - Disposition is exactly PASS, REVIEW REQUIRED, or FAIL.
 - A score below 60% results in FAIL.
